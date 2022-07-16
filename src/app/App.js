@@ -5,11 +5,34 @@ import { useEffect, useState } from "react";
 function App() {
   const minimumValue = 1;
   const maximumValue = 9;
+  const squareSize = 3;
   const uniqueValues = new Set();
   const [puzzleBoard, setPuzzleBoard] = useState([]);
 
-  const startSolver = () => {
-    isValidColumn(0);
+  const startSolver = () => {};
+
+  //For a given row and col coordinate, validate the 3x3 square
+  const isValidSquare = (row, col) => {
+    uniqueValues.clear();
+
+    //Find the coordinate for the first square in the box
+    let firstRow = Math.floor(row / squareSize) * squareSize;
+    let firstColumn = Math.floor(col / squareSize) * squareSize;
+
+    //Loop through the items in the square, and validate
+    for (let r = firstRow; r < firstRow + squareSize; r++) {
+      for (let c = firstColumn; c < firstColumn + squareSize; c++) {
+        let value = puzzleBoard[r][c];
+        if (isValidValue(value)) {
+          if (!uniqueValues.has(value)) {
+            uniqueValues.add(value);
+          } else {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
   };
 
   //Loop through the specified row index, and determine if it is currently valid
