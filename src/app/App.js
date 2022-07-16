@@ -8,7 +8,9 @@ function App() {
   const uniqueValues = new Set();
   const [puzzleBoard, setPuzzleBoard] = useState([]);
 
-  const startSolver = () => {};
+  const startSolver = () => {
+    isValidColumn(0);
+  };
 
   //Loop through the specified row index, and determine if it is currently valid
   const isValidRow = (row) => {
@@ -25,6 +27,22 @@ function App() {
     return true;
   };
 
+  //Loop through the specified column index, and determine if it is currently valid
+  const isValidColumn = (column) => {
+    uniqueValues.clear();
+    for (let i = 0; i < puzzleBoard.length; i++) {
+      let value = puzzleBoard[i][column];
+      if (isValidValue(value)) {
+        if (!uniqueValues.has(value)) {
+          uniqueValues.add(value);
+        } else {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
   const isValidValue = (value) => {
     return minimumValue <= value && value <= maximumValue;
   };
@@ -37,12 +55,15 @@ function App() {
   return (
     <div id="gameBody">
       <div id="gameboard">
-        {puzzleBoard.map((r) => {
+        {puzzleBoard.map((r, i) => {
           return (
-            <div className="row">
-              {r.map((c) => {
+            <div className="row" key={`row-${i}`}>
+              {r.map((c, x) => {
                 return (
-                  <div className={`col ${c !== 0 ? "orig" : ""}`}>
+                  <div
+                    className={`col ${c !== 0 ? "orig" : ""}`}
+                    key={`col-${i}-${x}`}
+                  >
                     {c !== 0 ? c : ""}
                   </div>
                 );
