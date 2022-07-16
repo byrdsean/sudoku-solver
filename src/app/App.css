@@ -1,26 +1,45 @@
 #gameboard {
-  border: var(--border-width) black solid;
-  /* max-width: calc(var(--cells-per-row) * var(--cell-size)); */
+  border: var(--border-width) var(--border-color) solid;
   margin: 30px auto;
   max-width: calc(var(--cell-width) * var(--cells-per-row));
   width: 100%;
 }
 
 #gameboard .row {
-  border: var(--border-width) green solid;
+  /* border: var(--border-width) green solid; */
   display: flex;
   flex-direction: row;
 }
 
+#gameboard .row:nth-child(3n) {
+  border-bottom: var(--border-width) var(--border-color) solid;
+}
+
+#gameboard .row:last-child {
+  border-bottom: none;
+}
+
 #gameboard .row .col {
   font-size: 3rem;
-  border: var(--border-width) blue solid;
   width: 100%;
   max-width: var(--cell-width);
   text-align: center;
+  border: 0.5px var(--border-color) solid;
+}
+
+#gameboard .row .col:nth-child(3n) {
+  border-right: var(--border-width) var(--border-color) solid;
+}
+
+#gameboard .row .col:last-child {
+  border-right: none;
 }
 
 #gameboard .row .col.orig {
-  color: black;
-  background-color: lightblue;
+  color: var(--original-color);
+  /* background-color: var(--lightgreen); */
+}
+
+#gameboard .row .col.answer {
+  color: var(--answer-color);
 }

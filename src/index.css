@@ -6,6 +6,10 @@
   --cell-width: calc(
     (var(--font-size) * 3) + (var(--cell-padding) * 2) + var(--border-width)
   );
+  --lightgreen: #a3e4d7;
+  --border-color: gray;
+  --original-color: darkblue;
+  --answer-color: darkorange;
 }
 
 body {
