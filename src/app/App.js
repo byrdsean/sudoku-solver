@@ -26,36 +26,35 @@ function App() {
   //Flag to know if the current board is valid
   const [validBoard, setValidBoard] = useState(true);
 
-  const [outputMsg, setOutputMsg] = useState("");
+  //For a given row and col coordinate, validate the 3x3 square
+  const isValidSquare = (row, col, board) => {
+    uniqueValues.clear();
 
-  // //For a given row and col coordinate, validate the 3x3 square
-  // const isValidSquare = (row, col, board) => {
-  //   uniqueValues.clear();
+    //Find the coordinate for the first square in the box
+    let firstRow = Math.floor(row / squareSize) * squareSize;
+    let firstColumn = Math.floor(col / squareSize) * squareSize;
 
-  //   //Find the coordinate for the first square in the box
-  //   let firstRow = Math.floor(row / squareSize) * squareSize;
-  //   let firstColumn = Math.floor(col / squareSize) * squareSize;
+    //Loop through the items in the square, and validate
+    for (let ri = 0; ri < squareSize; ri++) {
+      for (let ci = 0; ci < squareSize; ci++) {
+        //Calculate the index to check
+        let index =
+          (firstRow + ri) * squareSize * squareSize + firstColumn + ci;
+        let aItem = board[index];
 
-  //   console.log({ board });
+        //validate the value
+        if (isValidValue(aItem.value)) {
+          if (!uniqueValues.has(aItem.value)) {
+            uniqueValues.add(aItem.value);
+          } else {
+            return false;
+          }
+        }
+      }
+    }
 
-  //   //Loop through the items in the square, and validate
-  //   for (let r = firstRow; r < firstRow + squareSize; r++) {
-  //     for (let c = firstColumn; c < firstColumn + squareSize; c++) {
-  //       let aItem = board[r][c];
-
-  //       console.log({ aItem });
-
-  //       if (isValidValue(aItem.value)) {
-  //         if (!uniqueValues.has(aItem.value)) {
-  //           uniqueValues.add(aItem.value);
-  //         } else {
-  //           return false;
-  //         }
-  //       }
-  //     }
-  //   }
-  //   return true;
-  // };
+    return true;
+  };
 
   const isValidRow = (rowIndex, board) => {
     uniqueValues.clear();
@@ -182,17 +181,16 @@ function App() {
       if (!isValidValue(value)) {
         //Create a new board with the updated value
         let newBoard = [...puzzleBoard];
-        newBoard[insertAnswerIndex].value = value + 5;
+        newBoard[insertAnswerIndex].value = value + 1;
 
         // Validate the new board
         let row = Math.floor(insertAnswerIndex / maximumValue);
         let column = insertAnswerIndex - row * maximumValue;
         let isValid =
-          isValidRow(row, newBoard) && isValidColumn(column, newBoard);
-        // isValidSquare(row, column, newBoard);
+          isValidSquare(row, column, newBoard) &&
+          isValidRow(row, newBoard) &&
+          isValidColumn(column, newBoard);
         setValidBoard(isValid);
-
-        console.log(isValid);
 
         //Update the puzzle board
         setPuzzleBoard(newBoard);
@@ -219,8 +217,6 @@ function App() {
         ...insertionRecord,
         insertAnswerIndex,
       ]);
-      //setOutputMsg((outputMsg) => `${outputMsg} ${insertAnswerIndex}`);
-      setOutputMsg(`validBoard: ${validBoard}`);
     }
   }, [puzzleBoard]);
 
@@ -251,7 +247,6 @@ function App() {
       <div id="controls">
         <button onClick={startSolver}>Start</button>
         <button>Reset</button>
-        <p>{outputMsg}</p>
       </div>
     </div>
   );
