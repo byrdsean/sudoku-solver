@@ -29,20 +29,25 @@ function App() {
   const [outputMsg, setOutputMsg] = useState("");
 
   // //For a given row and col coordinate, validate the 3x3 square
-  // const isValidSquare = (row, col) => {
+  // const isValidSquare = (row, col, board) => {
   //   uniqueValues.clear();
 
   //   //Find the coordinate for the first square in the box
   //   let firstRow = Math.floor(row / squareSize) * squareSize;
   //   let firstColumn = Math.floor(col / squareSize) * squareSize;
 
+  //   console.log({ board });
+
   //   //Loop through the items in the square, and validate
   //   for (let r = firstRow; r < firstRow + squareSize; r++) {
   //     for (let c = firstColumn; c < firstColumn + squareSize; c++) {
-  //       let value = puzzleBoard[r][c];
-  //       if (isValidValue(value)) {
-  //         if (!uniqueValues.has(value)) {
-  //           uniqueValues.add(value);
+  //       let aItem = board[r][c];
+
+  //       console.log({ aItem });
+
+  //       if (isValidValue(aItem.value)) {
+  //         if (!uniqueValues.has(aItem.value)) {
+  //           uniqueValues.add(aItem.value);
   //         } else {
   //           return false;
   //         }
@@ -62,10 +67,10 @@ function App() {
     );
 
     let flag = true;
-    items.forEach((value) => {
-      if (isValidValue(value)) {
-        if (!uniqueValues.has(value)) {
-          uniqueValues.add(value);
+    items.forEach((aItem) => {
+      if (isValidValue(aItem.value)) {
+        if (!uniqueValues.has(aItem.value)) {
+          uniqueValues.add(aItem.value);
         } else {
           flag = false;
         }
@@ -86,10 +91,10 @@ function App() {
     }
 
     let flag = true;
-    items.forEach((value) => {
-      if (isValidValue(value)) {
-        if (!uniqueValues.has(value)) {
-          uniqueValues.add(value);
+    items.forEach((aItem) => {
+      if (isValidValue(aItem.value)) {
+        if (!uniqueValues.has(aItem.value)) {
+          uniqueValues.add(aItem.value);
         } else {
           flag = false;
         }
@@ -107,7 +112,12 @@ function App() {
   };
 
   const flattenBoard = (board) => {
-    return board.flat();
+    return board.flat().map((v) => {
+      return {
+        value: v,
+        isOriginal: v !== 0,
+      };
+    });
   };
 
   const expandBoard = (flat) => {
@@ -126,13 +136,12 @@ function App() {
   const getNextAnswerIndex = (index) => {
     //Get the index for the next item to set
     let newIndex = index + 1;
-    console.log({ newIndex, index });
 
     //Keep looking for the next index to actually set, not one that already has a value
     while (
       0 <= newIndex &&
       newIndex < puzzleBoard.length &&
-      puzzleBoard[newIndex] != 0
+      puzzleBoard[newIndex].isOriginal
     ) {
       newIndex++;
     }
@@ -156,20 +165,34 @@ function App() {
     }
   };
 
+  const setDisplayValue = (item) => {
+    if (item.isOriginal) return item.value;
+    return item.value !== 0 ? item.value : "";
+  };
+
+  const setBoardItemClass = (item) => {
+    if (item.isOriginal) return "orig";
+    if (!item.isOriginal && item.value !== 0) return "answer";
+    return "";
+  };
+
   useEffect(() => {
     if (0 <= insertAnswerIndex && insertAnswerIndex < puzzleBoard.length) {
-      let value = puzzleBoard[insertAnswerIndex];
+      let value = puzzleBoard[insertAnswerIndex].value;
       if (!isValidValue(value)) {
         //Create a new board with the updated value
         let newBoard = [...puzzleBoard];
-        newBoard[insertAnswerIndex] = value + 1;
+        newBoard[insertAnswerIndex].value = value + 5;
 
         // Validate the new board
         let row = Math.floor(insertAnswerIndex / maximumValue);
         let column = insertAnswerIndex - row * maximumValue;
         let isValid =
           isValidRow(row, newBoard) && isValidColumn(column, newBoard);
+        // isValidSquare(row, column, newBoard);
         setValidBoard(isValid);
+
+        console.log(isValid);
 
         //Update the puzzle board
         setPuzzleBoard(newBoard);
@@ -196,7 +219,8 @@ function App() {
         ...insertionRecord,
         insertAnswerIndex,
       ]);
-      setOutputMsg((outputMsg) => `${outputMsg} ${insertAnswerIndex}`);
+      //setOutputMsg((outputMsg) => `${outputMsg} ${insertAnswerIndex}`);
+      setOutputMsg(`validBoard: ${validBoard}`);
     }
   }, [puzzleBoard]);
 
@@ -213,10 +237,10 @@ function App() {
               {r.map((c, x) => {
                 return (
                   <div
-                    className={`col ${c !== 0 ? "orig" : ""}`}
+                    className={`col ${setBoardItemClass(c)}`.trim()}
                     key={`col-${i}-${x}`}
                   >
-                    {c !== 0 ? c : ""}
+                    {setDisplayValue(c)}
                   </div>
                 );
               })}

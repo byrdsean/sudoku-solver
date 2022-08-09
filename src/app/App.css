@@ -37,9 +37,9 @@
 
 #gameboard .row .col.orig {
   color: var(--original-color);
-  /* background-color: var(--lightgreen); */
 }
 
 #gameboard .row .col.answer {
   color: var(--answer-color);
+  background-color: var(--lightgreen);
 }
