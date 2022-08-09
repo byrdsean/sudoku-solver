@@ -156,7 +156,7 @@ function App() {
           getNextAnswerIndex(insertAnswerIndex)
         );
       }
-    }, 1000);
+    }, 5000);
 
     //Set the handle
     if (0 < handle) {
@@ -179,21 +179,27 @@ function App() {
     if (0 <= insertAnswerIndex && insertAnswerIndex < puzzleBoard.length) {
       let value = puzzleBoard[insertAnswerIndex].value;
       if (!isValidValue(value)) {
-        //Create a new board with the updated value
-        let newBoard = [...puzzleBoard];
-        newBoard[insertAnswerIndex].value = value + 1;
+        //Loop through the possible new values, and set the first valid value
+        for (let nVal = 1; nVal <= squareSize * squareSize; nVal++) {
+          //Create a new board with the updated value
+          let newBoard = [...puzzleBoard];
+          newBoard[insertAnswerIndex].value = nVal;
 
-        // Validate the new board
-        let row = Math.floor(insertAnswerIndex / maximumValue);
-        let column = insertAnswerIndex - row * maximumValue;
-        let isValid =
-          isValidSquare(row, column, newBoard) &&
-          isValidRow(row, newBoard) &&
-          isValidColumn(column, newBoard);
-        setValidBoard(isValid);
+          // Validate the new board
+          let row = Math.floor(insertAnswerIndex / maximumValue);
+          let column = insertAnswerIndex - row * maximumValue;
+          let isValid =
+            isValidSquare(row, column, newBoard) &&
+            isValidRow(row, newBoard) &&
+            isValidColumn(column, newBoard);
+          setValidBoard(isValid);
 
-        //Update the puzzle board
-        setPuzzleBoard(newBoard);
+          //Update the puzzle board
+          setPuzzleBoard(newBoard);
+
+          //If the table is valid, break the loop
+          if (isValid) break;
+        }
       }
     }
 
