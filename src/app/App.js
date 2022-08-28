@@ -14,18 +14,6 @@ function App() {
   //Flag to know if solver has started
   const [started, setStarted] = useState(false);
 
-  //Next index to insert an answer
-  const [insertAnswerIndex, setInsertAnswerIndex] = useState(-1);
-
-  //Handle for setInterval
-  const [loopHandle, setLoopHandle] = useState(0);
-
-  //Record of all insertions to try and solve puzzle
-  const [insertionRecord, setInsertionRecord] = useState([]);
-
-  //Flag to know if the current board is valid
-  const [validBoard, setValidBoard] = useState(true);
-
   //For a given row and col coordinate, validate the 3x3 square
   const isValidSquare = (row, col, board) => {
     uniqueValues.clear();
@@ -106,10 +94,6 @@ function App() {
     return minimumValue <= value && value <= maximumValue;
   };
 
-  const startSolver = () => {
-    setStarted(true);
-  };
-
   const flattenBoard = (board) => {
     return board.flat().map((v) => {
       return {
@@ -132,41 +116,11 @@ function App() {
     return board;
   };
 
-  const getNextAnswerIndex = (index) => {
-    //Get the index for the next item to set
-    let newIndex = index + 1;
-
-    //Keep looking for the next index to actually set, not one that already has a value
-    while (
-      0 <= newIndex &&
-      newIndex < puzzleBoard.length &&
-      puzzleBoard[newIndex].isOriginal
-    ) {
-      newIndex++;
-    }
-    return newIndex;
-  };
-
-  const insertNextAnswer = () => {
-    let handle = setInterval(() => {
-      //Increment the index. The useEffect callback will handle updating the board
-      if (validBoard) {
-        // setInsertAnswerIndex((insertAnswerIndex) => insertAnswerIndex + 1);
-        setInsertAnswerIndex((insertAnswerIndex) =>
-          getNextAnswerIndex(insertAnswerIndex)
-        );
-      }
-    }, 1000);
-
-    //Set the handle
-    if (0 < handle) {
-      setLoopHandle((loopHandle) => loopHandle + handle);
-    }
-  };
-
   const setDisplayValue = (item) => {
     if (item.isOriginal) return item.value;
-    return item.value !== 0 ? item.value : "";
+    return minimumValue <= item.value && item.value <= maximumValue
+      ? item.value
+      : "";
   };
 
   const setBoardItemClass = (item) => {
@@ -175,50 +129,83 @@ function App() {
     return "";
   };
 
-  useEffect(() => {
-    if (0 <= insertAnswerIndex && insertAnswerIndex < puzzleBoard.length) {
-      let value = puzzleBoard[insertAnswerIndex].value;
-      if (!isValidValue(value)) {
-        //Create a new board with the updated value
-        let newBoard = [...puzzleBoard];
-        newBoard[insertAnswerIndex].value = value + 1;
+  //https://flaviocopes.com/how-to-slow-loop-javascript/
+  const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
 
-        // Validate the new board
-        let row = Math.floor(insertAnswerIndex / maximumValue);
-        let column = insertAnswerIndex - row * maximumValue;
-        let isValid =
-          isValidSquare(row, column, newBoard) &&
-          isValidRow(row, newBoard) &&
-          isValidColumn(column, newBoard);
-        setValidBoard(isValid);
+  //Create a new board with the updated value
+  const setNewValueToBoard = (index, value) => {
+    let newBoard = [...puzzleBoard];
+    newBoard[index].value = value;
+    setPuzzleBoard(newBoard);
+  };
 
-        //Update the puzzle board
-        setPuzzleBoard(newBoard);
+  //Set the index to the LAST index that was set
+  const findLastSetIndex = (index) => {
+    let lastIndex = -1;
+    for (let p = index - 1; 0 <= p; p--) {
+      if (!puzzleBoard[p].isOriginal) {
+        lastIndex = p;
+        break;
       }
     }
+    return lastIndex;
+  };
 
-    //End the loop if there are no more values to loop through
-    if (maximumValue * maximumValue <= insertAnswerIndex) {
-      clearInterval(loopHandle);
-    }
-  }, [insertAnswerIndex]);
+  const startSolver = async () => {
+    //Keep looping until we reach end of board
+    let index = 0;
+    let resetPreviousValid = false;
+    while (true) {
+      //Check if the loop should break
+      if (puzzleBoard.length <= index) break;
 
-  useEffect(() => {
-    if (started) {
-      insertNextAnswer();
-    }
-    return () => clearInterval(loopHandle);
-  }, [started]);
+      //Check if the current index contains an original value from the board
+      //If so, continue
+      if (puzzleBoard[index].isOriginal) {
+        index++;
+        continue;
+      }
 
-  useEffect(() => {
-    if (0 <= insertAnswerIndex) {
-      //Record the index that was just worked on
-      setInsertionRecord((insertionRecord) => [
-        ...insertionRecord,
-        insertAnswerIndex,
-      ]);
+      //Get the value of the current index. If the value is invalid, update the board
+      let value = puzzleBoard[index].value;
+      if (maximumValue < value) {
+        //Reset the current value of the board
+        setNewValueToBoard(index, 0);
+
+        //Set the index to the LAST index that was set
+        index = findLastSetIndex(index);
+
+        //Set the flag to know that we need to update the previous valid value
+        resetPreviousValid = true;
+      } else if (!isValidValue(value)) {
+        setNewValueToBoard(index, value + 1);
+      } else {
+        //Value is within the valid range. Validate the board
+        let row = Math.floor(index / maximumValue);
+        let column = index - row * maximumValue;
+        let isValid =
+          !resetPreviousValid &&
+          isValidSquare(row, column, puzzleBoard) &&
+          isValidRow(row, puzzleBoard) &&
+          isValidColumn(column, puzzleBoard);
+
+        //if the board is valid, then move to the next index.
+        //Otherwise, set a new value
+        if (isValid) {
+          index++;
+        } else {
+          //Board is invalid. Increment the value and check in the next loop
+          setNewValueToBoard(index, value + 1);
+          resetPreviousValid = false;
+        }
+      }
+
+      //Sleep for a few seconds
+      await sleep(50);
     }
-  }, [puzzleBoard]);
+  };
 
   useEffect(() => {
     setPuzzleBoard(flattenBoard(puzzles.easy[0]));
