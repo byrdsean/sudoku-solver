@@ -1,11 +1,10 @@
 import "./App.css";
 import puzzles from "../api/puzzles.json";
 import { useEffect, useState } from "react";
+import { puzzleConsts as puzzleVals } from "../utils/Constants";
+import { expandBoard, flattenBoard } from "../utils/BoardUtilities";
 
 function App() {
-  const minimumValue = 1;
-  const maximumValue = 9;
-  const squareSize = 3;
   const uniqueValues = new Set();
 
   //Flatten puzzle board
@@ -19,15 +18,19 @@ function App() {
     uniqueValues.clear();
 
     //Find the coordinate for the first square in the box
-    let firstRow = Math.floor(row / squareSize) * squareSize;
-    let firstColumn = Math.floor(col / squareSize) * squareSize;
+    let firstRow =
+      Math.floor(row / puzzleVals.squareSize) * puzzleVals.squareSize;
+    let firstColumn =
+      Math.floor(col / puzzleVals.squareSize) * puzzleVals.squareSize;
 
     //Loop through the items in the square, and validate
-    for (let ri = 0; ri < squareSize; ri++) {
-      for (let ci = 0; ci < squareSize; ci++) {
+    for (let ri = 0; ri < puzzleVals.squareSize; ri++) {
+      for (let ci = 0; ci < puzzleVals.squareSize; ci++) {
         //Calculate the index to check
         let index =
-          (firstRow + ri) * squareSize * squareSize + firstColumn + ci;
+          (firstRow + ri) * puzzleVals.squareSize * puzzleVals.squareSize +
+          firstColumn +
+          ci;
         let aItem = board[index];
 
         //validate the value
@@ -46,11 +49,12 @@ function App() {
 
   const isValidRow = (rowIndex, board) => {
     uniqueValues.clear();
-    if (!board || board.length <= 0 || maximumValue <= rowIndex) return false;
+    if (!board || board.length <= 0 || puzzleVals.maximumValue <= rowIndex)
+      return false;
 
     let items = board.slice(
-      rowIndex * maximumValue,
-      rowIndex * maximumValue + maximumValue
+      rowIndex * puzzleVals.maximumValue,
+      rowIndex * puzzleVals.maximumValue + puzzleVals.maximumValue
     );
 
     let flag = true;
@@ -69,12 +73,12 @@ function App() {
   const isValidColumn = (columnIndex, board) => {
     uniqueValues.clear();
 
-    if (!board || board.length <= 0 || maximumValue <= columnIndex)
+    if (!board || board.length <= 0 || puzzleVals.maximumValue <= columnIndex)
       return false;
 
     let items = [];
-    for (let r = 0; r < maximumValue; r++) {
-      items = [...items, board[r * maximumValue + columnIndex]];
+    for (let r = 0; r < puzzleVals.maximumValue; r++) {
+      items = [...items, board[r * puzzleVals.maximumValue + columnIndex]];
     }
 
     let flag = true;
@@ -91,34 +95,13 @@ function App() {
   };
 
   const isValidValue = (value) => {
-    return minimumValue <= value && value <= maximumValue;
-  };
-
-  const flattenBoard = (board) => {
-    return board.flat().map((v) => {
-      return {
-        value: v,
-        isOriginal: v !== 0,
-      };
-    });
-  };
-
-  const expandBoard = (flat) => {
-    //Create the multidimensional array to build the board
-    let board = [];
-    for (let r = 0; r < maximumValue; r++) {
-      let newRow = flat.slice(
-        r * maximumValue,
-        r * maximumValue + maximumValue
-      );
-      board = [...board, newRow];
-    }
-    return board;
+    return puzzleVals.minimumValue <= value && value <= puzzleVals.maximumValue;
   };
 
   const setDisplayValue = (item) => {
     if (item.isOriginal) return item.value;
-    return minimumValue <= item.value && item.value <= maximumValue
+    return puzzleVals.minimumValue <= item.value &&
+      item.value <= puzzleVals.maximumValue
       ? item.value
       : "";
   };
@@ -170,7 +153,7 @@ function App() {
 
       //Get the value of the current index. If the value is invalid, update the board
       let value = puzzleBoard[index].value;
-      if (maximumValue < value) {
+      if (puzzleVals.maximumValue < value) {
         //Reset the current value of the board
         setNewValueToBoard(index, 0);
 
@@ -183,8 +166,8 @@ function App() {
         setNewValueToBoard(index, value + 1);
       } else {
         //Value is within the valid range. Validate the board
-        let row = Math.floor(index / maximumValue);
-        let column = index - row * maximumValue;
+        let row = Math.floor(index / puzzleVals.maximumValue);
+        let column = index - row * puzzleVals.maximumValue;
         let isValid =
           !resetPreviousValid &&
           isValidSquare(row, column, puzzleBoard) &&
