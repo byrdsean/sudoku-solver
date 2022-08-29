@@ -9,6 +9,8 @@ import {
   isValidColumn,
   isValidValue,
 } from "../utils/ValidationUtilities";
+import { setDisplayValue, setBoardItemClass } from "../utils/DisplayUtilities";
+import { sleep } from "../utils/TimeUtilities";
 
 function App() {
   //Flatten puzzle board
@@ -16,25 +18,6 @@ function App() {
 
   //Flag to know if solver has started
   const [started, setStarted] = useState(false);
-
-  const setDisplayValue = (item) => {
-    if (item.isOriginal) return item.value;
-    return puzzleVals.minimumValue <= item.value &&
-      item.value <= puzzleVals.maximumValue
-      ? item.value
-      : "";
-  };
-
-  const setBoardItemClass = (item) => {
-    if (item.isOriginal) return "orig";
-    if (!item.isOriginal && item.value !== 0) return "answer";
-    return "";
-  };
-
-  //https://flaviocopes.com/how-to-slow-loop-javascript/
-  const sleep = (milliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-  };
 
   //Create a new board with the updated value
   const setNewValueToBoard = (index, value) => {
