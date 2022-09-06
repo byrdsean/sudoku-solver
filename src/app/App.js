@@ -1,5 +1,4 @@
 import "./App.css";
-import puzzles from "../api/puzzles.json";
 import { useEffect, useState } from "react";
 import { puzzleConsts as puzzleVals } from "../utils/Constants";
 import { expandBoard, flattenBoard } from "../utils/BoardUtilities";
@@ -11,10 +10,16 @@ import {
 } from "../utils/ValidationUtilities";
 import { setDisplayValue, setBoardItemClass } from "../utils/DisplayUtilities";
 import { sleep } from "../utils/TimeUtilities";
+import { getAvailablePuzzles, getPuzzle } from "../utils/PuzzleUtilities";
 
 function App() {
+  const randomId = "random";
+
   //Flatten puzzle board
   const [puzzleBoard, setPuzzleBoard] = useState([]);
+
+  //List of possible puzzles options
+  const [puzzleOptions, setPuzzleOptions] = useState([]);
 
   //Flag to know if solver has started
   const [started, setStarted] = useState(false);
@@ -92,8 +97,21 @@ function App() {
     }
   };
 
+  const selectPuzzle = (value) => {
+    if (value) {
+      setPuzzleBoard(flattenBoard(getPuzzle(value)));
+    }
+  };
+
   useEffect(() => {
-    setPuzzleBoard(flattenBoard(puzzles.easy[0]));
+    if (puzzleOptions && 0 < puzzleOptions.length) {
+      selectPuzzle(randomId);
+    }
+  }, [puzzleOptions]);
+
+  useEffect(() => {
+    //Load the available puzzles
+    setPuzzleOptions(getAvailablePuzzles());
   }, []);
 
   return (
@@ -119,6 +137,24 @@ function App() {
       <div id="controls">
         <button onClick={startSolver}>Start</button>
         <button>Reset</button>
+      </div>
+      <div id="selectPuzzle">
+        <label>
+          <p>Select Puzzle:</p>
+          <select
+            id="puzzleSelector"
+            onChange={(e) => selectPuzzle(e.target.value)}
+          >
+            <option id={randomId} value={randomId}>
+              Random
+            </option>
+            {puzzleOptions.map((i) => (
+              <option id={i.id} key={i.id} value={i.value}>
+                {i.text}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
     </div>
   );
