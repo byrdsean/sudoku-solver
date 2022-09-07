@@ -22,9 +22,6 @@ function App() {
   //List of possible puzzles options
   const [puzzleOptions, setPuzzleOptions] = useState([]);
 
-  //Flag to know if solver has started
-  const [started, setStarted] = useState(false);
-
   //Create a new board with the updated value
   const setNewValueToBoard = (index, value) => {
     let newBoard = [...puzzleBoard];

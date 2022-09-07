@@ -1,4 +1,5 @@
 import React from "react";
+import "./controls.css";
 
 const Controls = ({ startSolver, selectPuzzle, randomId, puzzleOptions }) => {
   return (
@@ -9,7 +10,7 @@ const Controls = ({ startSolver, selectPuzzle, randomId, puzzleOptions }) => {
       </div>
       <div id="selectPuzzle">
         <label>
-          <p>Select Puzzle:</p>
+          <p class="title">Select Puzzle:</p>
           <select
             id="puzzleSelector"
             onChange={(e) => selectPuzzle(e.target.value)}
