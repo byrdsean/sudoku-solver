@@ -3,6 +3,7 @@ import "./controls.css";
 
 const Controls = ({
   startSolver,
+  resetPuzzle,
   selectPuzzle,
   randomId,
   puzzleOptions,
@@ -14,7 +15,9 @@ const Controls = ({
         <button onClick={startSolver} disabled={started}>
           Start
         </button>
-        <button>Reset</button>
+        <button onClick={resetPuzzle} disabled={started}>
+          Reset
+        </button>
       </div>
       <div id="selectPuzzle">
         <label>
@@ -22,6 +25,7 @@ const Controls = ({
           <select
             id="puzzleSelector"
             onChange={(e) => selectPuzzle(e.target.value)}
+            disabled={started}
           >
             <option id={randomId} value={randomId}>
               Random

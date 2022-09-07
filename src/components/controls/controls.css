@@ -26,6 +26,7 @@
 
 #button-controls button:disabled {
   background-color: var(--disabled);
+  opacity: 0.6;
 }
 
 #button-controls button:last-child {
@@ -46,4 +47,8 @@
   padding: 5px;
   background-color: var(--button-bgcolor);
   color: white;
+}
+
+#puzzleSelector:disabled {
+  background-color: var(--disabled);
 }
