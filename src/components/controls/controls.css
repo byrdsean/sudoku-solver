@@ -18,7 +18,7 @@
   color: white;
 }
 
-#button-controls button:active {
+#button-controls button:not([disabled]):active {
   background-color: var(--button-bgcolor-active);
   color: black;
   border-color: black;
