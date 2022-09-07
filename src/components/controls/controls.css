@@ -24,6 +24,10 @@
   border-color: black;
 }
 
+#button-controls button:disabled {
+  background-color: var(--disabled);
+}
+
 #button-controls button:last-child {
   margin-right: 0;
 }
