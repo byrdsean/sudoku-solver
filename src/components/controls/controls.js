@@ -1,16 +1,24 @@
 import React from "react";
 import "./controls.css";
 
-const Controls = ({ startSolver, selectPuzzle, randomId, puzzleOptions }) => {
+const Controls = ({
+  startSolver,
+  selectPuzzle,
+  randomId,
+  puzzleOptions,
+  started,
+}) => {
   return (
     <div id="controls">
       <div id="button-controls">
-        <button onClick={startSolver}>Start</button>
+        <button onClick={startSolver} disabled={started}>
+          Start
+        </button>
         <button>Reset</button>
       </div>
       <div id="selectPuzzle">
         <label>
-          <p class="title">Select Puzzle:</p>
+          <p className="title">Select Puzzle:</p>
           <select
             id="puzzleSelector"
             onChange={(e) => selectPuzzle(e.target.value)}

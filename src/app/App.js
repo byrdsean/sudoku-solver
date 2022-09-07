@@ -22,6 +22,9 @@ function App() {
   //List of possible puzzles options
   const [puzzleOptions, setPuzzleOptions] = useState([]);
 
+  //Flag to know if the solver started
+  const [started, setStarted] = useState(false);
+
   //Create a new board with the updated value
   const setNewValueToBoard = (index, value) => {
     let newBoard = [...puzzleBoard];
@@ -42,6 +45,11 @@ function App() {
   };
 
   const startSolver = async () => {
+    if (started) return;
+
+    //Turn the "started" flag on
+    setStarted(true);
+
     //Keep looping until we reach end of board
     let index = 0;
     let resetPreviousValid = false;
@@ -137,6 +145,7 @@ function App() {
         selectPuzzle={selectPuzzle}
         randomId={randomId}
         puzzleOptions={puzzleOptions}
+        started={started}
       />
     </div>
   );
